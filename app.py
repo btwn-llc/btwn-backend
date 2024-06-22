@@ -37,6 +37,10 @@ def create_session():
 def submit_resumes():
     try:
         print("submit resumes")
+
+        if request.files is None:
+            return jsonify({"error": "No files provided"}), 400
+
         if 'resumes' not in request.files:
             return jsonify({"error": "No resume files provided"}), 400
 
