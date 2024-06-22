@@ -111,7 +111,7 @@ def get_industries():
 
     for resume in session.parsed_resumes:
         prompt: str = f"{resume} \n Above is a text resume of a person, Please extract at most three industries that the person could be a good fit for. \
-                return the industries as a parseable string list, such as [healthcare, environment, technology]. Only return the bracked list and nothing else.\
+                return the industries as a parseable string list, with a emoji for each industry, such as [🏥healthcare, 🍀environment, 💻technology]. Only return the bracked list and nothing else.\
                 list: ".format(resume=resume)
         llm_response: str = llm.query_openai(prompt)
         llm_resopnse_parsed = parse_llm_response(llm_response)
