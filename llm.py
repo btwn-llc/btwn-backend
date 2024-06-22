@@ -1,5 +1,7 @@
 import openai  # TODO: add support for arbitrary GPTs
 import os
+from dotenv import load_dotenv
+load_dotenv('.env.local')
 
 #openai_key: "str|None" = os.environ.get("OPENAI_API_KEY")
 openai_key = os.environ.get("OPENAI_API_KEY")

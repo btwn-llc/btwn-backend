@@ -6,6 +6,7 @@ import llm
 import PyPDF2
 import io
 from dotenv import load_dotenv
+from scrape import scrape_article_content
 from llm import query_openai
 load_dotenv('.env.local')
 
@@ -125,15 +126,29 @@ def top_companies():
     # Ensure the list contains at most 3 industries
     if len(industries) > 3:
         return jsonify({"error": "You can provide a maximum of 3 industries."}), 400
+
+    print("chosen industries", industries)
     
     # Get the top companies for the given industries
-    top_companies_result = web_search(f"What are the top products belonging in these industries: {', '.join(industries)}")
+    results = web_search(f"top companies in: {', '.join(industries)}")
+
+    print("got the results of length: ", len(results))
     
+    # Scrape top 5 links
+    top_companies_result = []
+    for result in results["hits"]:
+        link = result["url"]
+        article_result = scrape_article_content(link)
+        if article_result:
+            top_companies_result.append(article_result)
+            print("Successfully retrieved: ", link)
+        if len(top_companies_result) >= 5:
+            break
+
     # Filter with OpenAI
     prompt = f"Can you glean the top companies from these results along with a description of them and format it into a list of dictionaries with keys of company_name and company description: {top_companies_result}"
     result = query_openai(prompt)
-    print("dana", result)
-    
+    print("dana's results", result)
     return jsonify({"industries": industries, "top_companies": result}) # company and description
 
 
