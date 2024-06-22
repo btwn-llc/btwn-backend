@@ -17,11 +17,8 @@ sessions: 'dict[str, Session]' = {"default" : Session()} # session_id -> Session
 
 
 def get_session_id() -> str|None:
-    data =  request.get_json()
-    if data is None:
-        return None
-    session_id: str|None = data.get('session_id')
-    return session_id
+    data = request.form.get('session_id')
+    return data
 
 @app.route('/create_session', methods=['POST'])
 def create_session():
@@ -45,6 +42,7 @@ def submit_resumes():
             return jsonify({"error": "No resume files provided"}), 400
 
         session_id: str|None = get_session_id()
+
         print("session_id: ", session_id)
 
         if not session_id:
