@@ -16,6 +16,7 @@ def submit_resumes():
     resumes = request.files.getlist('resumes')
     global parsed_resumes
     
+    num_resumes_submitted: int = 0
     for resume in resumes:
         if not resume.filename:
             continue
@@ -25,8 +26,9 @@ def submit_resumes():
             for page in pdf_reader.pages:
                 text += page.extract_text()
             parsed_resumes.append(text)
+            num_resumes_submitted += 1
     
-    return jsonify({"message": "Resumes submitted successfully"}), 201
+    return jsonify({"message": "{} resumes submitted successfully".format(num_resumes_submitted)}), 201
 
 @app.route('/get_industries', methods=['GET'])
 def get_industries():
