@@ -25,6 +25,7 @@ def create_session():
     session_id = get_session_id()
     if session_id is None:
         return jsonify({"error" : "No session_id providded"}), 400
+    global sessions
     sessions[session_id] = Session()
     print("Session {} created successfully".format(session_id))
     return jsonify({"message": "Session id: {} created successfully".format(session_id)}), 201
@@ -108,6 +109,7 @@ def get_industries():
         industries.extend(result)
     
     return jsonify({"industries": industries})
+
 
 @app.route('/')
 def hello():
