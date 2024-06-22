@@ -7,8 +7,9 @@ import PyPDF2
 import io
 import json
 from dotenv import load_dotenv
-from scrape import scrape_article_content, scrape_youtube_comments
+from scrape import scrape_article_content, scrape_youtube_comments, youtube_search
 from llm import query_openai
+import time
 load_dotenv('.env.local')
 
 app = Flask(__name__)
@@ -104,7 +105,7 @@ def hello():
 @app.route('/search/<query>', methods=['GET'])
 def web_search(query):
     headers = {"X-API-Key": os.environ.get('YOU_WEB_SEARCH_API')}
-    params = {"query": query, "country": "US", "num_web_results": 10}
+    params = {"query": query, "country": "US", "num_web_results": 20}
     print("headers", headers)
     req = requests.get(
         f"https://api.ydc-index.io/search",
@@ -116,6 +117,7 @@ def web_search(query):
 
 @app.route('/top-desires', methods=['POST'])
 def top_desires():
+    start_time = time.time()
     data = request.json
 
     # Ensure 'industries' is provided in the request and is a list
@@ -143,23 +145,20 @@ def top_desires():
 
     print("chosen companies", companies)
     all_comments = []
-    all_youtube_videos = set()
+    all_sources = set()
     for company in companies:
-        results = web_search(f"youtube videos for : {company}")
+        video_ids = youtube_search(company)
         company_comments = []
-        for result in results["hits"]:
-            link = result["url"]
-            if 'https://www.youtube.com/watch?' in link and len(company_comments) > 5:
-                break
-            comments = scrape_youtube_comments(link)
+        for video_id in video_ids:
+            comments = scrape_youtube_comments(video_id)
             if comments:
                 company_comments.append(comments)
-                all_youtube_videos.add(link)
-        print("company", company, company_comments)
+                all_sources.add(video_id)
         all_comments.extend(company_comments)
+        # all_other_content.extend(company_other_content)
 
     print("got the results of length: ", len(all_comments))
-    prompt = f"These are a collection of youtube comments about these industries {industries}: {all_comments}. I am trying to create a startup; can you consolidate a list of top 10 desires of users that would be good startup ideas based on these comments?"
+    prompt = f"I am doing market research on these companies: {companies} in these industries: {industries}. These are a collection of youtube comments about these companies: {all_comments}. I am trying to create a startup; can you consolidate a list of top 10 desires of users that would be good startup ideas based on these comments and articles? Return only the list please."
     print("prompt", prompt)
     result = query_openai(prompt)
     print("top desires results", result)
@@ -167,8 +166,9 @@ def top_desires():
 
     # Remove numbers from each element in the list
     desires = [item.split('. ', 1)[1] if item.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.')) else item for item in my_list]
-
-    return jsonify({"desires": desires, "sources": list(all_youtube_videos)}) # company and description
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time:.5f} seconds")
+    return jsonify({"desires": desires, "sources": list(all_sources)}) # company and description
 
     
 @app.route('/top-companies', methods=['POST'])
