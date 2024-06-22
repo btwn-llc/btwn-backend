@@ -12,7 +12,7 @@ class Session:
     def __init__(self):
         self.parsed_resumes: list = []
 
-sessions: 'dict[str, Session]' = {} # session_id -> Session
+sessions: 'dict[str, Session]' = {"default" : Session()} # session_id -> Session
 
 
 def get_session_id() -> str|None:
