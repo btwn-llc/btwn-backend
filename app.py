@@ -3,6 +3,7 @@ from flask_cors import CORS
 import llm
 import PyPDF2
 import io
+import ast
 
 app = Flask(__name__)
 CORS(app)
@@ -41,7 +42,9 @@ def submit_resumes():
     if not session_id:
         return jsonify({"error" : "No session_id providded"}), 400
 
+    print("submit resume for session: {}".format(session_id))
     session: Session = sessions.get(session_id) # type: ignore
+    print("got session");
     
     resumes = request.files.getlist('resumes')
     
@@ -79,15 +82,19 @@ def get_industries():
 
     if len(session.parsed_resumes) == 0:
         return jsonify({"errors": "No resumes submitted"}), 400
+
+    industries: 'list[str]' = []
+
+    for resume in session.parsed_resumes:
+        prompt: str = f"{resume} \n Above is a text resume of a person, Please extract at most three industries that the person could be a good fit for. \
+                return the industries as a parseable string list, such as [healthcare, environment, technology]. Only return the bracked list and nothing else.\
+                list: ".format(resume=resume)
+        llm_response: str = llm.query_openai(prompt)
+        # parse the response in form of [industyr1, industry2, industry3]
+        parsed_list = ast.literal_eval(llm_response)
+        result: 'list[str]' = [item.strip() for item in parsed_list]
+        industries.extend(result)
     
-    industries = [
-        "Technology",
-        "Healthcare",
-        "Finance",
-        "Education",
-        "Manufacturing",
-        "Retail"
-    ]
     return jsonify({"industries": industries})
 
 @app.route('/')
