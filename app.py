@@ -29,6 +29,7 @@ def create_session():
     if session_id is None:
         return jsonify({"error" : "No session_id providded"}), 400
     sessions[session_id] = Session()
+    print("Session {} created successfully".format(session_id))
     return jsonify({"message": "Session id: {} created successfully".format(session_id)}), 201
 
 
