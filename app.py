@@ -64,11 +64,15 @@ def submit_resumes():
 
         # extract names from each resume
         names: "list[str]" = []
-        for resume in session.parsed_resumes:
-            prompt: str = "Extract the name of the owner of the resume: \n" + resume
-            extracted_name: str = llm.query_openai(prompt) 
-            names.append(extracted_name)
-            print("Extracted name: ", extracted_name)
+        try:
+            for resume in session.parsed_resumes:
+                prompt: str = "Extract the name of the owner of the resume: \n" + resume
+                extracted_name: str = llm.query_openai(prompt) 
+                names.append(extracted_name)
+                print("Extracted name: ", extracted_name)
+        except Exception as e:
+            print("Error extracting names: ", str(e))
+            return jsonify({"error", "Error extracting names from resume"}), 500
         
         return jsonify({"names": names, "message": "{} resumes submitted successfully".format(num_resumes_submitted)}), 201
     except Exception as e:
