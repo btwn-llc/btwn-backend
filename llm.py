@@ -1,7 +1,8 @@
 import openai  # TODO: add support for arbitrary GPTs
+import os
 
 #openai_key: "str|None" = os.environ.get("OPENAI_API_KEY")
-openai_key = "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"
+openai_key = os.environ.get("OPENAI_API_KEY")
 if openai_key is None:
     raise Exception("OPENAI_API_KEY environment variable not set.")
 openai.api_key = openai_key
