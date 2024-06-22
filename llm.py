@@ -9,7 +9,10 @@ if openai_key is None:
     raise Exception("OPENAI_API_KEY environment variable not set.")
 openai.api_key = openai_key
 
-OPENAI_MODEL = "gpt-3.5-turbo-0125"
+MODEL_GPT_3_5 = "gpt-3.5-turbo-0125"
+MODEL_GPT_4O = "gpt-4o"
+#OPENAI_MODEL = "gpt-3.5-turbo-0125"
+OPENAI_MODEL = MODEL_GPT_4O
 
 openai_client = openai.OpenAI(
     base_url="https://gateway.ai.cloudflare.com/v1/09fec33cfb1d5c316f4121dc37140834/openai/openai",
