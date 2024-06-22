@@ -56,3 +56,4 @@ Werkzeug==2.2.2
 yarl==1.9.4
 gunicorn==20.0.4
 slack_sdk
+PyPDF2
