@@ -17,8 +17,8 @@ sessions: 'dict[str, Session]' = {"default" : Session()} # session_id -> Session
 
 
 def get_session_id() -> str|None:
-    data = request.form.get('session_id')
-    return data
+    session_id = request.headers.get('session_id')
+    return session_id
 
 @app.route('/create_session', methods=['POST'])
 def create_session():
