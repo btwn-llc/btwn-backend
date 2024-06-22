@@ -70,8 +70,8 @@ def submit_resumes():
         names: "list[str]" = []
         try:
             for resume in session.parsed_resumes:
-                prompt: str = "Extract the name of the owner of the resume: \n" + resume
-                extracted_name: str = llm.query_openai(prompt) 
+                prompt: str = "Extract the name of the owner of the resume. Only provide the name and say nothing else. Name: \n" + resume
+                extracted_name: str = llm.query_openai(prompt)
                 names.append(extracted_name)
                 print("Extracted name: ", extracted_name)
         except Exception as e:
