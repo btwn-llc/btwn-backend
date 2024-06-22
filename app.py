@@ -34,41 +34,44 @@ def create_session():
 
 @app.route('/submit_resumes', methods=['POST'])
 def submit_resumes():
-    if 'resumes' not in request.files:
-        return jsonify({"error": "No resume files provided"}), 400
+    try:
+        if 'resumes' not in request.files:
+            return jsonify({"error": "No resume files provided"}), 400
 
-    session_id: str|None = get_session_id()
-    
-    if not session_id:
-        return jsonify({"error" : "No session_id providded"}), 400
+        session_id: str|None = get_session_id()
+        
+        if not session_id:
+            return jsonify({"error" : "No session_id providded"}), 400
 
-    print("submit resume for session: {}".format(session_id))
-    session: Session = sessions.get(session_id) # type: ignore
-    print("got session");
-    
-    resumes = request.files.getlist('resumes')
-    
-    num_resumes_submitted: int = 0
-    for resume in resumes:
-        if not resume.filename:
-            continue
-        if resume.filename.endswith('.pdf'):
-            pdf_reader = PyPDF2.PdfReader(io.BytesIO(resume.read()))
-            text = ""
-            for page in pdf_reader.pages:
-                text += page.extract_text()
-            session.parsed_resumes.append(text)
-            num_resumes_submitted += 1
+        print("submit resume for session: {}".format(session_id))
+        session: Session = sessions.get(session_id) # type: ignore
+        print("got session");
+        
+        resumes = request.files.getlist('resumes')
+        
+        num_resumes_submitted: int = 0
+        for resume in resumes:
+            if not resume.filename:
+                continue
+            if resume.filename.endswith('.pdf'):
+                pdf_reader = PyPDF2.PdfReader(io.BytesIO(resume.read()))
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
+                session.parsed_resumes.append(text)
+                num_resumes_submitted += 1
 
-    # extract names from each resume
-    names: "list[str]" = []
-    for resume in session.parsed_resumes:
-        prompt: str = "Extract the name of the owner of the resume: \n" + resume
-        extracted_name: str = llm.query_openai(prompt) 
-        names.append(extracted_name)
-        print("Extracted name: ", extracted_name)
-    
-    return jsonify({"names": names, "message": "{} resumes submitted successfully".format(num_resumes_submitted)}), 201
+        # extract names from each resume
+        names: "list[str]" = []
+        for resume in session.parsed_resumes:
+            prompt: str = "Extract the name of the owner of the resume: \n" + resume
+            extracted_name: str = llm.query_openai(prompt) 
+            names.append(extracted_name)
+            print("Extracted name: ", extracted_name)
+        
+        return jsonify({"names": names, "message": "{} resumes submitted successfully".format(num_resumes_submitted)}), 201
+    except Exception as e:
+        return jsonify({"unknown error": str(e)}), 500
 
 @app.route('/get_industries', methods=['GET'])
 def get_industries():
