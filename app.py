@@ -103,6 +103,7 @@ def get_industries():
                 return the industries as a parseable string list, such as [healthcare, environment, technology]. Only return the bracked list and nothing else.\
                 list: ".format(resume=resume)
         llm_response: str = llm.query_openai(prompt)
+        print(llm_response)
         # parse the response in form of [industyr1, industry2, industry3]
         parsed_list = ast.literal_eval(llm_response)
         result: 'list[str]' = [item.strip() for item in parsed_list]
