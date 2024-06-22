@@ -86,19 +86,16 @@ def submit_resumes():
 @app.route('/get_industries', methods=['GET'])
 def get_industries():
 
-    def parse_llm_response(llm_response):
-        try:
-            # Remove whitespace and parse the string as a literal
-            parsed_list = ast.literal_eval(llm_response.strip())
-            
-            # Check if the result is a list
-            if not isinstance(parsed_list, list):
-                raise ValueError("Input is not in the correct format")
-            
-            # Convert all elements to strings
-            return [str(item) for item in parsed_list]
-        except:
-            raise ValueError("Unable to parse the input string")
+    def parse_llm_response(llm_response: str) -> 'list[str]':
+        # delete brackets
+        llm_response = llm_response.replace("[","")
+        llm_response = llm_response.replace("]","")
+        # split by comma
+        ret = llm_response.split(",")
+        # get rid of whitespaces
+        for i in range(len(ret)):
+            ret[i] = ret[i].strip()
+        return ret
 
     session_id: str|None = get_session_id()
     
