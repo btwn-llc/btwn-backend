@@ -36,22 +36,15 @@ def create_session():
 @app.route('/submit_resumes', methods=['POST'])
 def submit_resumes():
     try:
-        # print("submit resumes")
-        # request_data = request.get_json()
-        # print("request_data: ", request_data)
-        # if 'resumes' not in request.files:
-        #     return jsonify({"error": "No resume files provided"}), 400
+        if 'resumes' not in request.files:
+            return jsonify({"error": "No resume files provided"}), 400
 
-        # session_id: str|None = get_session_id()
-        
-        # if not session_id:
-        #     return jsonify({"error" : "No session_id providded"}), 400
-        #
-        # print("submit resume for session: {}".format(session_id))
-        # session: Session = sessions.get(session_id) # type: ignore
-        # print("got session");
+        session_id: str|None = get_session_id()
 
-        session = Session()
+        if not session_id:
+            return jsonify({"error" : "No session_id providded"}), 400
+
+        session: Session = sessions.get(session_id) # type: ignore
         
         resumes = request.files.getlist('resumes')
         
