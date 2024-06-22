@@ -46,7 +46,7 @@ def get_industries():
 
 @app.route('/')
 def hello():
-    return jsonify({"message": "Hello, World!"})
+    return jsonify({"message": "Hello, Bhada!"})
 
 
 if __name__ == '__main__':
