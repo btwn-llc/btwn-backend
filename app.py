@@ -107,7 +107,7 @@ def get_industries():
     if len(session.parsed_resumes) == 0:
         return jsonify({"errors": "No resumes submitted"}), 400
 
-    industries: 'list[str]' = []
+    industries: 'set[str]' = set()
 
     for resume in session.parsed_resumes:
         prompt: str = f"{resume} \n Above is a text resume of a person, Please extract at most three industries that the person could be a good fit for. \
@@ -115,10 +115,12 @@ def get_industries():
                 list: ".format(resume=resume)
         llm_response: str = llm.query_openai(prompt)
         llm_resopnse_parsed = parse_llm_response(llm_response)
-        industries.extend(llm_resopnse_parsed)
+        industries.update(llm_resopnse_parsed)
         # parse the response in form of [industyr1, industry2, industry3]
+
+    industries_ls: 'list[str]' = list(industries)
     
-    return jsonify({"industries": industries})
+    return jsonify({"industries": industries_ls}), 200
 
 
 @app.route('/')
