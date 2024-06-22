@@ -1,16 +1,31 @@
 import requests
 import json
 from llm import query_openai
-from scrape import scrape_article_content
+from scrape import scrape_youtube_comments
 
-url = 'http://127.0.0.1:5000/top-companies'
+## TEST 3 ##
+url = 'http://127.0.0.1:5000/top-desires'
 headers = {'Content-Type': 'application/json'}
 payload = {
-    'industries': ['tech', 'fashion', 'food']
+    'industries': ['tech', 'fashion', 'food'],
+    'companies': ['shein', 'apple', 'mcdonalds']
 }
 
 response = requests.post(url, headers=headers, data=json.dumps(payload))
 print("MY RESULT", response.json())
+## TEST 2 ##
+
+# url = 'http://127.0.0.1:5000/top-companies'
+# headers = {'Content-Type': 'application/json'}
+# payload = {
+#     'industries': ['tech', 'fashion', 'food']
+# }
+
+# response = requests.post(url, headers=headers, data=json.dumps(payload))
+# print("MY RESULT", response.json())
+
+
+## TEST 1 ##
 
 # Filter with OpenAI
 # results = {

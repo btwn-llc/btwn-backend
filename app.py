@@ -5,8 +5,9 @@ from flask_cors import CORS
 import llm
 import PyPDF2
 import io
+import json
 from dotenv import load_dotenv
-from scrape import scrape_article_content
+from scrape import scrape_article_content, scrape_youtube_comments
 from llm import query_openai
 load_dotenv('.env.local')
 
@@ -113,6 +114,63 @@ def web_search(query):
     result = req.json()
     return result
 
+@app.route('/top-desires', methods=['POST'])
+def top_desires():
+    data = request.json
+
+    # Ensure 'industries' is provided in the request and is a list
+    if not data or 'industries' not in data or not isinstance(data['industries'], list):
+        return jsonify({"error": "Invalid input. Please provide a list of industries."}), 400
+    
+    industries = data['industries']
+    
+    # Ensure the list contains at most 3 industries
+    if len(industries) > 3:
+        return jsonify({"error": "You can provide a maximum of 3 industries."}), 400
+
+    print("chosen industries", industries)
+    
+    
+    # Ensure 'companies' is provided in the request and is a list
+    if not data or 'companies' not in data or not isinstance(data['companies'], list):
+        return jsonify({"error": "Invalid input. Please provide a list of companies."}), 400
+    
+    companies = data['companies']
+    
+    # Ensure the list contains at most 3 industries
+    if len(companies) > 10:
+        return jsonify({"error": "You can provide a maximum of 10 companies."}), 400
+
+    print("chosen companies", companies)
+    all_comments = []
+    all_youtube_videos = set()
+    for company in companies:
+        results = web_search(f"youtube videos for : {company}")
+        company_comments = []
+        for result in results["hits"]:
+            link = result["url"]
+            if 'https://www.youtube.com/watch?' in link and len(company_comments) > 5:
+                break
+            comments = scrape_youtube_comments(link)
+            if comments:
+                company_comments.append(comments)
+                all_youtube_videos.add(link)
+        print("company", company, company_comments)
+        all_comments.extend(company_comments)
+
+    print("got the results of length: ", len(all_comments))
+    prompt = f"These are a collection of youtube comments about these industries {industries}: {all_comments}. I am trying to create a startup; can you consolidate a list of top 10 desires of users that would be good startup ideas based on these comments?"
+    print("prompt", prompt)
+    result = query_openai(prompt)
+    print("top desires results", result)
+    my_list = result.split('\n')
+
+    # Remove numbers from each element in the list
+    desires = [item.split('. ', 1)[1] if item.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.')) else item for item in my_list]
+
+    return jsonify({"desires": desires, "sources": list(all_youtube_videos)}) # company and description
+
+    
 @app.route('/top-companies', methods=['POST'])
 def top_companies():
     data = request.json
@@ -146,8 +204,9 @@ def top_companies():
             break
 
     # Filter with OpenAI
-    prompt = f"Can you glean the top companies from these results along with a description of them and format it into a list of dictionaries with keys of company_name and company description: {top_companies_result}"
+    prompt = f"Can you glean the top 10 companies from these results along with a description of them and format it into a list of dictionaries with keys of company_name and company description: {top_companies_result}"
     result = query_openai(prompt)
+    result = json.loads(result)
     print("dana's results", result)
     return jsonify({"industries": industries, "top_companies": result}) # company and description
 
