@@ -36,6 +36,9 @@ def create_session():
 @app.route('/submit_resumes', methods=['POST'])
 def submit_resumes():
     try:
+        print("submit resumes")
+        request_data = request.get_json()
+        print("request_data: ", request_data)
         if 'resumes' not in request.files:
             return jsonify({"error": "No resume files provided"}), 400
 
