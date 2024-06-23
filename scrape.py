@@ -18,7 +18,7 @@ def youtube_search(query):
         'part': 'snippet',
         'q': query,
         'key': youtube_key,
-        'maxResults': 10
+        'maxResults': 20
     }
 
     try:
@@ -85,7 +85,7 @@ def scrape_youtube_comments(video_id):
     if not video_id:
         return None
     # Endpoint URL
-    url = f'https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId={video_id}&key={youtube_key}&maxResults=40'
+    url = f'https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId={video_id}&key={youtube_key}&maxResults=20'
 
     try:
         # Send GET request
@@ -96,11 +96,12 @@ def scrape_youtube_comments(video_id):
         if response.status_code == 200:
             # Parse JSON response
             data = response.json()
-            
+            comments = []
             if 'items' in data:
                 for item in data['items']:
                     snippet = item['snippet']['topLevelComment']['snippet']
-                    return snippet['textOriginal']
+                    comments.append(snippet['textOriginal'])
+            return comments
         else:
             print(f"Failed to fetch comments. Status code: {response.status_code}")
 

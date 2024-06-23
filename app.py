@@ -185,10 +185,10 @@ def top_desires():
         for video_id in video_ids:
             comments = scrape_youtube_comments(video_id)
             if comments:
-                company_comments.append(comments)
+                company_comments.extend(comments)
                 all_sources.add(video_id)
         all_comments.extend(company_comments)
-        # all_other_content.extend(company_other_content)
+        print("company", company,"length", len(video_ids), "comments", company_comments)
 
     print("got the results of length: ", len(all_comments))
     prompt = f"I am doing market research on these companies: {companies} in these industries: {industries}. These are a collection of youtube comments about these companies: {all_comments}. I am trying to create a startup; can you consolidate a list of top 10 desires of users that would be good startup ideas based on these comments and articles? Return only the list please."
