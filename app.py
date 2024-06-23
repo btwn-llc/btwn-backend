@@ -370,6 +370,7 @@ def top_complaints():
 @app.route('/top-companies', methods=['POST'])
 def top_companies():
     data = request.json
+    #
     
     # Ensure 'industries' is provided in the request and is a list
     if not data or 'industries' not in data or not isinstance(data['industries'], list):
