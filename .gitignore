@@ -1,0 +1,14 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Compiled Python files
+*.pyc
+*.pyo
+__pycache__/
+
+# Other common Python-related files to ignore
+*.egg-info/
+dist/
+build/
